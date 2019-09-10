@@ -2,6 +2,7 @@ package cron
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/urlooker/web/api"
@@ -12,14 +13,16 @@ import (
 	"github.com/urlooker/agent/utils"
 )
 
+var wg *sync.WaitGroup
+
 func StartCheck() {
 	t1 := time.NewTicker(time.Duration(g.Config.Web.Interval) * time.Second)
 	for {
 		items, _ := GetItem()
-
 		for _, item := range items {
 			g.WorkerChan <- 1
-			go utils.CheckTargetStatus(item)
+			go utils.CheckTargetStatus(item, wg)
+			time.Sleep(500 * time.Millisecond)
 		}
 		<-t1.C
 	}

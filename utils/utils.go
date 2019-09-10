@@ -2,6 +2,8 @@ package utils
 
 import (
 	"crypto/tls"
+	"sync"
+
 	//"html"
 	"io/ioutil"
 	"log"
@@ -23,11 +25,10 @@ const (
 	DNS_ERROR         = 4
 )
 
-func CheckTargetStatus(item *webg.DetectedItem) {
+func CheckTargetStatus(item *webg.DetectedItem, wg *sync.WaitGroup) {
 	defer func() {
 		<-g.WorkerChan
 	}()
-
 	checkResult := checkTargetStatus(item)
 	g.CheckResultQueue.PushFront(checkResult)
 }
